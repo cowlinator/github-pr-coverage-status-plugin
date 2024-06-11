@@ -54,7 +54,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
         return DESCRIPTOR.getGreenThreshold();
     }
 
-    public static String getPersonalAccessToken() {
+    public static Secret getPersonalAccessToken() {
         return DESCRIPTOR.getPersonalAccessToken();
     }
 
@@ -62,7 +62,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
         return DESCRIPTOR.getSonarUrl();
     }
 
-    public static String getSonarToken() {
+    public static Secret getSonarToken() {
         return DESCRIPTOR.getSonarToken();
     }
 
@@ -70,7 +70,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
         return DESCRIPTOR.getSonarLogin();
     }
 
-    public static String getSonarPassword() {
+    public static Secret getSonarPassword() {
         return DESCRIPTOR.getSonarPassword();
     }
 
@@ -97,14 +97,14 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
 
         private boolean disableSimpleCov;
         private String gitHubApiUrl;
-        private String personalAccessToken;
+        private Secret personalAccessToken;
         private String jenkinsUrl;
         private boolean privateJenkinsPublicGitHub;
         private boolean useSonarForMasterCoverage;
         private String sonarUrl;
-        private String sonarToken;
+        private Secret sonarToken;
         private String sonarLogin;
-        private String sonarPassword;
+        private Secret sonarPassword;
 
         private int yellowThreshold = DEFAULT_YELLOW_THRESHOLD;
         private int greenThreshold = DEFAULT_GREEN_THRESHOLD;
@@ -134,7 +134,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
         }
 
         @Override
-        public String getPersonalAccessToken() {
+        public Secret getPersonalAccessToken() {
             return personalAccessToken;
         }
 
@@ -169,7 +169,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
         }
 
         @Override
-        public String getSonarToken() {
+        public Secret getSonarToken() {
             return sonarToken;
         }
 
@@ -178,7 +178,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
             return jenkinsUrl;
         }
 
-        public String getSonarLogin() {
+        public Secret getSonarLogin() {
             return sonarLogin;
         }
 
@@ -188,9 +188,8 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+			req.bindJSON(this, json);
             gitHubApiUrl = StringUtils.trimToNull(formData.getString("gitHubApiUrl"));
-            personalAccessToken = Secret.toString(Secret.fromString(
-                    StringUtils.trimToNull(formData.getString("personalAccessToken"))));
             yellowThreshold = NumberUtils.toInt(formData.getString("yellowThreshold"), DEFAULT_YELLOW_THRESHOLD);
             greenThreshold = NumberUtils.toInt(formData.getString("greenThreshold"), DEFAULT_GREEN_THRESHOLD);
             jenkinsUrl = StringUtils.trimToNull(formData.getString("jenkinsUrl"));
@@ -198,11 +197,7 @@ public class Configuration extends AbstractDescribableImpl<Configuration> {
             useSonarForMasterCoverage = BooleanUtils.toBoolean(formData.getString("useSonarForMasterCoverage"));
             disableSimpleCov = BooleanUtils.toBoolean(formData.getString("disableSimpleCov"));
             sonarUrl = StringUtils.trimToNull(formData.getString("sonarUrl"));
-            sonarToken = Secret.toString(Secret.fromString(
-                    StringUtils.trimToNull(formData.getString("sonarToken"))));
             sonarLogin = StringUtils.trimToNull(formData.getString("sonarLogin"));
-            sonarPassword = Secret.toString(Secret.fromString(
-                    StringUtils.trimToNull(formData.getString("sonarPassword"))));
             save();
             return super.configure(req, formData);
         }
